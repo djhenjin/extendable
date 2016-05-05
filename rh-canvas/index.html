@@ -1,13 +1,50 @@
 <!DOCTYPE html>
 <html>
-<head>
-</head>
+<head></head>
 <body>
 
-<p>Content</p>
+<p></p>
+
+<hr>
+
+<canvas id="rh-canvas" width="800" height="600"></canvas> 
 
 <script>
+//
+// Get canvas context
+//
+var c = document.getElementById("rh-canvas");
+var ctx = c.getContext("2d");
 
+//
+// Fill background
+//
+ctx.fillStyle = "#333";
+ctx.fillRect(0,0,800,600);
+
+//
+// Draw the sun
+//
+ctx.arc(400, 200, 15, 0, 2 * Math.PI);
+  ctx.fillStyle = "orange";
+  ctx.fill();
+  ctx.strokeStyle = "yellow";
+  ctx.lineWidth = 5;
+  ctx.stroke();
+ 
+//**
+// Add new planet below this line
+//**
+
+
+
+
+
+
+//**
+// Add new plant above this line
+//**
+ 
 </script>
 </body>
 </html>
