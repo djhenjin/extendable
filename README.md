@@ -1,6 +1,6 @@
 #extendable
 Make collaborative Art by creating new projects or extending projects made by others. 
 
-Feel free to contribute to the example <b>project rh-canvas</b> by cloning this repo, modifying the index.html file inside the rh-canvas directory, and making a pull request. If you want to start a project of your own, clone this repo, copy the template directory, rename it with your projects name, describe your project in the index.html file and make a pull request.  
+Feel free to contribute to the <b>example project rh-canvas</b> by cloning this repo, modifying the index.html file inside the rh-canvas directory, and making a pull request. If you want to start a project of your own, clone this repo, copy the template directory, rename it with your projects name, describe your project in the index.html file and make a pull request.  
 
 Visit the site fro this repo [here](https://strawstack.github.com/extendable/). 
