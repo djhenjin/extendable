@@ -1,7 +1,7 @@
 {
   "name": "extendable",
   "version": "0.2.5",
-  "description": "Make collaborative Art",
+  "description": "Make collaborative Art.",
   "engines": {
     "node": "5.9.1"
   },
