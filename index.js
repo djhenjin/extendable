@@ -3,7 +3,7 @@ var app = express();
 
 app.set('port', (process.env.PORT || 5000));
 
-// serve static files
+// serve static files.
 app.use(express.static( __dirname ));
 
 app.listen(app.get('port'), function() {
