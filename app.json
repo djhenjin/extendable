@@ -1,6 +1,6 @@
 {
   "name": "extendable",
-  "description": "a place to make collaborative Art",
+  "description": "A place to make collaborative Art",
   "repository": "https://github.com/strawstack/extendable/",
   "logo": "",
   "keywords": ["node", "express", "static"],
