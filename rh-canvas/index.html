@@ -1,61 +1,196 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
 <head>
-<style>
-body{
- padding-left: 5px;
- color: #333;
- font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-}
-p{
-  max-width: 500px;
-  font-size: 18px;
-}
-</style>
+  <meta charset="UTF-8"/>
+  <title>HTML5 Canvas Scaling to Window on Load and Resize</title>
+  <style>
+    .sideMargins{
+      margin: 0px 5px 0px 5px;
+    }
+    body{
+      color: #333;
+      font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+      border: 0;
+      margin: 0px;
+      overflow: hidden; /* Disable scrollbars */
+      display: block; /* prevent floating content on sides */
+    }
+    p{
+      width: 500px;
+      height: 66px;
+      font-size: 18px;
+    }
+    #content{
+      padding: 8px;
+      width: 500px;
+      height: 128px;
+      float: left;
+    }
+    #inputForm{
+      position: absolute;
+      width: 170px;
+      padding: 8px;
+      left: 510px;
+      top: 90px;
+      
+    }
+    .scaled{
+      padding: 15px;
+      position: absolute;
+      width: calc(100% - 30px);
+      height: calc(100% - 180px);
+    }
+
+  </style>
 </head>
 <body>
+<div style="height: 128px;">
+  <div id="content">
+    <h1 class="sideMargins">rh-canvas</h1>
+    <p>Add a planet to the solar system below by forking <a href="https://github.com/strawstack/extendable/" target="_blank">this repo</a> modifying the <b>index.html</b> file inside the <b>rh-canvas</b> directory and making a <b>pull request</b>.</p>  
+  </div>
+  <div id="inputForm">
+    <form name="addPlanet" action="" method="GET">
+      <input type="button" name="button" value="ClickMe!" onCLick="addPlanetoid()"/>
+      <label><b>To add a Random Planetoid</b></label>
+    </form>
+  </div>
+</div>
+<br/>
+<hr class="sideMargins"/>
 
-<h1>rh-canvas</h1>
-<p>Add a planet to the solar system below by forking <a href="https://github.com/strawstack/extendable/" target="_blank">this repo</a> modifying the <b>index.html</b> file inside the <b>rh-canvas</b> directory and making a <b>pull request</b>.</p>
-
-<hr>
-
-<canvas id="rh-canvas" width="800" height="600"></canvas> 
+<canvas id="rh-canvas" class="scaled"></canvas>
 
 <script>
 //
 // Get canvas context
 //
-var c = document.getElementById("rh-canvas");
-var ctx = c.getContext("2d");
+var htmlCanvas = document.getElementById("rh-canvas");
+var context = htmlCanvas.getContext("2d");
 
-//
-// Fill background
-//
-ctx.fillStyle = "#333";
-ctx.fillRect(0,0,800,600);
+// Canvas Dimension Cache to reduce code length
+var canv = {"wide":0,"high":0};
 
-//
+// instantiate Public array which will hold all the planetoids
+planetoids = [];
+
+initialize();
+function initialize() {
+  // Register Event handler for window resize events, Events get handled in resizeCanvas() 
+  window.addEventListener('resize', resizeCanvas, false);
+  // Call resizeCanvas() once before recieving any events to set up initial state properly.
+  resizeCanvas();
+}
+
+function resizeCanvas(){
+  // Set Canvas dimensions based on new Window Dimensions
+  htmlCanvas.width = window.innerWidth - 100;
+  htmlCanvas.height = window.innerHeight - 150;
+  
+  canv.wide = htmlCanvas.width;
+  canv.high = htmlCanvas.height;
+  // Draw the Canvas using the new dimensions
+  redraw();
+}
+
+function redraw(){
+  // First set entire canvas to one color
+  blankCanvas();
+  
+  // Draw a red border around the perimiter of the canvas 
+  context.strokeStyle = "red";
+  context.lineWidth = "5";
+  context.strokeRect(0, 0, (window.innerWidth - 100), (window.innerHeight - 150));
+  
+  // Draw things to the Canvas.
+  drawSun();
+  drawPlanets();
+
+}
+
+// Fill background with solid color
+function blankCanvas(){
+  context.fillStyle = "#333";
+  context.fillRect(0, 0, (window.innerWidth - 100), (window.innerHeight - 150));
+}
+
 // Draw the sun
-//
-ctx.arc(400, 200, 15, 0, 2 * Math.PI);
-  ctx.fillStyle = "orange";
-  ctx.fill();
-  ctx.strokeStyle = "yellow";
-  ctx.lineWidth = 5;
-  ctx.stroke();
- 
+function drawSun(){
+  // beginPath() first so that each thing drawn to the canvas is not joined by a random stroke
+  context.beginPath();
+  context.arc(canv.wide / 2, canv.high / 2, 0.15 * ((canv.wide / 20)+(canv.high / 20)) / 2, 0, 2 * Math.PI);
+    context.fillStyle = "orange";
+    context.fill();
+    context.strokeStyle = "yellow";
+    context.lineWidth = 5;
+    context.stroke();
+}
 //**
 // Add new planet below this line
 //**
 
+// Simplified 2D Vector Object prototype used to store planetoid's position
+function Vector2d(x, y) {
+  this.x = x;
+  this.y = y;
+  this.add = function(other) {this.x += other.x; this.y += other.y; return this;};
+  this.sub = function(other) { this.add(other.scale(-1)); return this;};
+  this.scale = function(scalar) { this.x *= scalar; this.y *= scalar; return this;};
+  this.divide = function(divisor) { this.x /= divisor; this.y /= divisor; return this;};
+  this.magnitude = function(){ return Math.pow(((this.x*this.x)+(this.y*this.y)),1/2); };
+  this.normalize = function() { this.divide(this.magnitude()); return this;};
+  this.randomize = function(xRange,yRange) { return new Vector2d((Math.random()),(Math.random()));};
+};
+
+// Planetoid Object holds colors, Size, and Position data
+function planetoid(fillColor, strokeColor, size, position) {
+  this.fillColor = fillColor;
+  this.strokeColor = strokeColor;
+  this.size = size;
+  this.position = position;
+};
+
+// addPlanetoid() is Called by the onClick event on the button in the form up above
+function addPlanetoid(){
+  // Get new blank position vector, then randomize it
+  position = new Vector2d(0, 0);
+  position = position.randomize(canv.wide, canv.high);  
+  
+  // push a new planetoid instance to the planetoids array
+  planetoids.push(new planetoid("green", "blue", Math.random(), position));
+  redraw();
+}
+
+// Loops over every Planetoid in planetoids array, Drawing each one to the canvas in order
+function drawPlanets(){
+  if(planetoids.length > 0){
+    for(var i=0;i<planetoids.length;i++){
+      context.beginPath();
+      context.arc(planetoids[i].position.x * canv.wide, planetoids[i].position.y * canv.high, planetoids[i].size * ((canv.wide / 20)+(canv.high / 20)) / 2, 0, 2 * Math.PI);
+        context.fillStyle = planetoids[i].fillColor;
+        context.fill();
+        context.strokeStyle = planetoids[i].strokeColor;
+        context.lineWidth = 5;
+        context.stroke();
+    }
+  }
+}
 
 
-
-
+/*
+//Loop snippet which adds maxCount more planetoids to the drawing, logs the completion % to console ever 10 planetoids added
+//Commented out to guarantee it is default disabled.
+var maxCount = 100;
+for(var i=0;i<maxCount;i++){
+  addPlanetoid();
+  if((i%10) == 0){
+    console.log(100.0 * (i / maxCount) + '%');
+  }
+}
+*/
 
 //**
-// Add new plant above this line
+// Add new planet above this line
 //**
  
 </script>
